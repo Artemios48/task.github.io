@@ -23,13 +23,22 @@ async def create_tables():
 async def delete_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Model.metadata.drop_all)
-'''
+
 async def delete_last_task():
-    async with engine.begin() as conn:
-        session = async_sessionmaker(bind=conn, expire_on_commit=False)()
-        result = await session.execute(session.query(Model).order_by(Model.id.desc()).limit(1))
-        last_element = result.first()
-        await session.delete(last_element)
-        await session.commit()'''
+    """Удаляет последнюю задачу из базы данных (с максимальным ID)."""
+    async with new_session() as session:
+        # Получение ID последней задачи
+        result = await session.execute(select(TasksOrm.id).order_by(TasksOrm.id.desc()).limit(1))
+        last_task_id = result.scalar_one_or_none()
+
+        # Если задача найдена
+        if last_task_id is not None:
+            # Удаление задачи по полученному ID
+            stmt = delete(TasksOrm).where(TasksOrm.id == last_task_id)
+            await session.execute(stmt)
+            await session.commit()
+            return True # Успешное удаление
+        else:
+            return False # Задача не найдена
 
 

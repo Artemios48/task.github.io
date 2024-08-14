@@ -21,7 +21,5 @@ class TaskRepository:
             task_models = result.scalars().all()
             task_schemas = [STask.model_validate(task_model) for task_model in task_models]
             return task_schemas
-    @classmethod
-    async def delete(cls) -> list[STask]:
-        async with new_session() as session:
-            stmt = (delete(TasksOrm).where(TasksOrm.id == 5))
+        
+

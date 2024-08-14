@@ -71,10 +71,25 @@ async function sendData(title,description) {
 
 
 Delete.addEventListener('click', () => {
+   fetch('http://127.0.0.1:8000/tasks/del', {
+       method: 'POST'})
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('del');
+  })
+  .catch(error => {
+    console.error('Ошибка при получении данных:', error);
+  });
   const lastTask = taskList.lastChild;
   lastTask.style.animation = 'fadeOut 0.5s ease-in-out forwards';
   // Удаляем элемент через 0.5 секунды (после завершения анимации)
   setTimeout(() => {taskList.removeChild(lastTask);}, 500); });// 500 миллисекунд = 0.5 секунды
+
   
 
 
