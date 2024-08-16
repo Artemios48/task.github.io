@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase, Mapped, MappedColumn
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from typing import Annotated, Optional
 
 engine = create_async_engine('sqlite+aiosqlite:///tasks.db')
@@ -40,5 +40,27 @@ async def delete_last_task():
             return True # Успешное удаление
         else:
             return False # Задача не найдена
+
+async def edit_by_id(task_id, new_title, new_description):
+    """Удаляет последнюю задачу из базы данных (с максимальным ID)."""
+    async with new_session() as session:
+        try:
+            task_id = int(task_id)
+        except ValueError:
+            print("Некорректный ID задачи. Введите целое число.")
+            return 
+
+        # Получаем данные о задаче из базы данных
+        result = await session.execute(
+            select(TasksOrm).where(TasksOrm.id == task_id)
+        )
+        task = result.scalar_one_or_none()
+
+        if task is not None:
+            # Обновляем данные задачи в базе данных
+            stmt = (update(TasksOrm).where(TasksOrm.id == task_id).values(name=new_title, description=new_description))
+            await session.execute(stmt)
+            await session.commit()
+        
 
 

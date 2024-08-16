@@ -6,7 +6,6 @@ const description = document.getElementsByClassName('description');
 const task_list =  document.getElementsByClassName('task_list');
 const taskList =  document.getElementById('main');
 let index = 0;
-
 function loadTasks() {
   fetch('http://127.0.0.1:8000/tasks')
     .then(response => {
@@ -19,6 +18,8 @@ function loadTasks() {
       for (let i = 0; i < data.length; i++) {
         const taskEl = createTaskEl(data[i].name, data[i].description);
         taskList.appendChild(taskEl);
+        //taskEl.containerDiv.taskListDiv.descriptionElement.contentEditable = 'false'
+        //taskEl.containerDiv.taskListDiv.titleElement.contentEditable = 'false'
       }
     })
     .catch(error => {
@@ -62,7 +63,8 @@ async function sendData(title,description) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const json = await response.json();
-    console.log('Успешная отправка:', json);
+    console.log('Успешная отправка:', json,json.task_id);
+
 
   } catch (error) {
     console.error('Ошибка отправки:', error);
@@ -72,7 +74,7 @@ async function sendData(title,description) {
 
 Delete.addEventListener('click', () => {
    fetch('http://127.0.0.1:8000/tasks/del', {
-       method: 'POST'})
+       method: 'DELETE'})
   .then(response => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -92,10 +94,10 @@ Delete.addEventListener('click', () => {
 
   
 
-
-
-
 function createTaskEl(title='',description=''){
+  var editble = 0;
+  var id = 1
+  id++
   // Создайте новый элемент div с классом container
   const containerDiv = document.createElement('div');
   containerDiv.classList.add('container');
@@ -127,13 +129,37 @@ function createTaskEl(title='',description=''){
   save_button.classList.add('save_button');
 
   save_button.addEventListener('click', () => {
-    titleElement.contentEditable = 'false';
-    descriptionElement.contentEditable = 'false';
-    sendData(titleElement.textContent, descriptionElement.textContent); 
+    if (editble == 0){
+      titleElement.contentEditable = 'false';
+      descriptionElement.contentEditable = 'false';
+      sendData(titleElement.textContent, descriptionElement.textContent); 
+    }else{
+      try {
+        const response = fetch(`http://127.0.0.1:8000/tasks/edit/${id}/${titleElement.textContent}/${descriptionElement.textContent}`, {
+          method: 'PUT',
+          headers: {'Content-Type': 'application/json'},
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const json = response.json();
+        console.log('Успешная отправка:', json);
+    
+      } catch (error) {
+        console.error('Ошибка отправки:', error);
+      }
+      titleElement.contentEditable = 'false';
+      descriptionElement.contentEditable = 'false';
+      //sendData(titleElement.textContent, descriptionElement.textContent); 
+      editble = 0
+    }
   })
   edit_button.addEventListener('click', () => {
+    editble = 1
     titleElement.contentEditable = 'true';
     descriptionElement.contentEditable = 'true';
+    
   })
   
 
