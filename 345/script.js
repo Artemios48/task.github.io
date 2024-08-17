@@ -5,7 +5,6 @@ let save = document.getElementsByClassName('save_button');
 const description = document.getElementsByClassName('description');
 const task_list =  document.getElementsByClassName('task_list');
 const taskList =  document.getElementById('main');
-let index = 0;
 function loadTasks() {
   fetch('http://127.0.0.1:8000/tasks')
     .then(response => {
@@ -16,10 +15,8 @@ function loadTasks() {
     })
     .then(data => {
       for (let i = 0; i < data.length; i++) {
-        const taskEl = createTaskEl(data[i].name, data[i].description);
+        const taskEl = createTaskEl(data[i].name, data[i].description,false,data[i].id);
         taskList.appendChild(taskEl);
-        //taskEl.containerDiv.taskListDiv.descriptionElement.contentEditable = 'false'
-        //taskEl.containerDiv.taskListDiv.titleElement.contentEditable = 'false'
       }
     })
     .catch(error => {
@@ -41,7 +38,6 @@ append.addEventListener('click', () => {
     const taskEl = createTaskEl()
     taskList.appendChild(taskEl); 
     taskEl.scrollIntoView(top=false)
-    index ++
     //console.log(data[0].name);
     //console.log(data[0].description);
     //console.log(data[0].id);
@@ -94,10 +90,8 @@ Delete.addEventListener('click', () => {
 
   
 
-function createTaskEl(title='',description=''){
+function createTaskEl(title='',description='',load='true',tsk_id=null){
   var editble = 0;
-  var id = 1
-  id++
   // Создайте новый элемент div с классом container
   const containerDiv = document.createElement('div');
   containerDiv.classList.add('container');
@@ -109,14 +103,14 @@ function createTaskEl(title='',description=''){
   // Создайте новый элемент h1 с классом "title"
   const titleElement = document.createElement('h1');
   titleElement.classList.add('task_input_h1'); 
-  titleElement.contentEditable = 'true'
+  titleElement.contentEditable = load;
   titleElement.textContent = title
   titleElement.dir = 'ltr'
 
   // Создайте новый элемент p с классом "description"
   const descriptionElement = document.createElement('p');
   descriptionElement.classList.add('task_input'); 
-  descriptionElement.contentEditable = 'true'
+  descriptionElement.contentEditable = load;
   descriptionElement.textContent = description
   descriptionElement.dir = 'ltr'
 
@@ -135,7 +129,7 @@ function createTaskEl(title='',description=''){
       sendData(titleElement.textContent, descriptionElement.textContent); 
     }else{
       try {
-        const response = fetch(`http://127.0.0.1:8000/tasks/edit/${id}/${titleElement.textContent}/${descriptionElement.textContent}`, {
+        const response = fetch(`http://127.0.0.1:8000/tasks/edit/${tsk_id}/${titleElement.textContent}/${descriptionElement.textContent}`, {
           method: 'PUT',
           headers: {'Content-Type': 'application/json'},
         });
