@@ -122,11 +122,13 @@ function createTaskEl(title='',description='',load='true',tsk_id=null){
   save_button.textContent = '🖭';
   save_button.classList.add('save_button');
 
+
   save_button.addEventListener('click', () => {
     if (editble == 0){
       titleElement.contentEditable = 'false';
       descriptionElement.contentEditable = 'false';
       sendData(titleElement.textContent, descriptionElement.textContent); 
+      location.reload();
     }else{
       try {
         const response = fetch(`http://127.0.0.1:8000/tasks/edit/${tsk_id}/${titleElement.textContent}/${descriptionElement.textContent}`, {
@@ -147,12 +149,15 @@ function createTaskEl(title='',description='',load='true',tsk_id=null){
       descriptionElement.contentEditable = 'false';
       //sendData(titleElement.textContent, descriptionElement.textContent); 
       editble = 0
+      save_button.style.display = 'none';
+      location.reload();
     }
   })
   edit_button.addEventListener('click', () => {
     editble = 1
     titleElement.contentEditable = 'true';
     descriptionElement.contentEditable = 'true';
+    save_button.style.display = 'inline-block';
     
   })
   
